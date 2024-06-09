@@ -29,7 +29,8 @@ RUN curl -LO "https://get.helm.sh/helm-$(curl -s https://api.github.com/repos/he
     && mv linux-amd64/helm /usr/local/bin/ \
     && rm -rf helm-*-linux-amd64.tar.gz linux-amd64
 
-# Install AWS CLI
+
+# Install AWS CLI v2
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
     && unzip awscliv2.zip \
     && ./aws/install \
@@ -37,3 +38,4 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 
 # Set bash as default shell
 CMD ["/bin/bash"]
+
