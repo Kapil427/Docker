@@ -16,6 +16,9 @@ RUN curl -LO https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_li
     && mv terraform /usr/local/bin/ \
     && rm terraform_0.15.5_linux_amd64.zip
 
+# Install OpenSSL
+RUN apk add --update --no-cache openssl
+
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
     && chmod 700 get_helm.sh \
