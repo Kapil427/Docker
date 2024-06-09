@@ -1,33 +1,39 @@
-FROM alpine:latest
+# Use an official lightweight base image
+FROM alpine:3.18
 
-# Install required packages
-RUN apk add --update --no-cache \
+# Install dependencies
+RUN apk add --no-cache \
     curl \
-    bash
+    unzip \
+    bash \
+    python3 \
+    py3-pip \
+    jq
 
 # Install kubectl
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
     && chmod +x kubectl \
     && mv kubectl /usr/local/bin/
 
-# Install Terraform
-RUN curl -LO https://releases.hashicorp.com/terraform/0.15.5/terraform_0.15.5_linux_amd64.zip \
-    && unzip terraform_0.15.5_linux_amd64.zip \
+# Install terraform
+RUN curl -LO "https://releases.hashicorp.com/terraform/$(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r .current_version)/terraform_$(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r .current_version)_linux_amd64.zip" \
+    && unzip terraform_*_linux_amd64.zip \
+    && chmod +x terraform \
     && mv terraform /usr/local/bin/ \
-    && rm terraform_0.15.5_linux_amd64.zip
+    && rm terraform_*_linux_amd64.zip
 
-# Install OpenSSL
-RUN apk add --update --no-cache openssl
+# Install helm
+RUN curl -LO "https://get.helm.sh/helm-$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r .tag_name)-linux-amd64.tar.gz" \
+    && tar -zxvf helm-*-linux-amd64.tar.gz \
+    && chmod +x linux-amd64/helm \
+    && mv linux-amd64/helm /usr/local/bin/ \
+    && rm -rf helm-*-linux-amd64.tar.gz linux-amd64
 
-# Install Helm
-RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
-    && chmod 700 get_helm.sh \
-    && ./get_helm.sh
-
-
-# Install AWS CLI v2
+# Install AWS CLI
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
     && unzip awscliv2.zip \
-    && ./aws/install
+    && ./aws/install \
+    && rm -rf awscliv2.zip aws
 
+# Set bash as default shell
 CMD ["/bin/bash"]
